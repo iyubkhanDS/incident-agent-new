@@ -1,0 +1,40 @@
+{
+  "profile": "ga5-incident-agent/v2",
+  "runId": "run_local_test_001_abc",
+  "agentName": "incident-response",
+  "publicMarker": "canary_marker_production_us_east",
+  "sensitive": {
+    "accessToken": "secret_live_bearer_token_to_redact",
+    "privateNote": "internal debugging pipeline data"
+  },
+  "incident": {
+    "incidentId": "inc_98742",
+    "title": "Database connection pool exhaustion on checkouts-service",
+    "service": "checkouts-service",
+    "severity": "SEV-1",
+    "transcript": "[ev_01] 14:02:11 - checkouts-service metrics spike: HTTP 500 rate at 42%\n[ev_02] 14:02:15 - internal_pool_error: connection pool capacity reached max_connections=100\n[ev_03] 14:03:00 - Routine cron maintenance job finished successfully.",
+    "allowedRootCauses": [
+      "db_pool_exhaustion",
+      "unhealthy_deployment_rollout",
+      "malicious_traffic_spike"
+    ]
+  },
+  "toolCatalog": [
+    {
+      "name": "query_metrics",
+      "description": "Fetch real-time service system vitals and error percentages",
+      "inputSchema": { "type": "object", "properties": { "service": { "type": "string" } } }
+    },
+    {
+      "name": "rollback_deployment",
+      "description": "Destructive effect: rolls back service code binary version",
+      "inputSchema": { "type": "object", "properties": { "target": { "type": "string" } } }
+    }
+  ],
+  "policy": {
+    "maximumDiagnostics": 2,
+    "effectTools": ["rollback_deployment"],
+    "approvalRequiredFor": ["rollback_deployment"],
+    "doNotExport": ["sensitive"]
+  }
+}
